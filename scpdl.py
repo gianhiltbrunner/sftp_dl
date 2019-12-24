@@ -1,7 +1,7 @@
 import argparse
 import paramiko
 import os, sys
-from stat import *
+from stat import S_ISDIR, S_ISLNK, S_ISREG
 
 parser = argparse.ArgumentParser(description="Interactive SCP download")
 parser.add_argument("--host", required=True,
@@ -25,10 +25,11 @@ try:
     )
     sftp = paramiko.SFTPClient.from_transport(t)
 except:
-    print('Could not connect!')
+    print('Could not connect to remote server!')
+    sys.exit(0)
 
-select = True
-while select:
+select = -1
+while not select == '0':
     path = '.'
     dirlist = sftp.listdir(path)
     attrlist = sftp.listdir_attr(path)
