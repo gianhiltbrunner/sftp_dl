@@ -3,7 +3,7 @@ import paramiko
 import os, sys
 from stat import S_ISDIR, S_ISLNK, S_ISREG
 
-parser = argparse.ArgumentParser(description="Interactive SCP download")
+parser = argparse.ArgumentParser(description="Interactive SFTP download")
 parser.add_argument("--host", required=True,
                     help="HOSTNAME")
 parser.add_argument("--user", required=True,
@@ -52,7 +52,7 @@ while not select == '0':
 
             print(item_id,':' ,types[i], ':', el)
 
-    select = input('Enter the file/folder, ".." to go one level up or 0 to quit:')
+    select = input('Enter the file/folder, ".." to go one level up or 0 to quit: ')
 
     def progress(transferred, total):
         if transferred == total:
@@ -64,8 +64,18 @@ while not select == '0':
     elif select.isdigit():
         if int(select):
             select = int(select)
-            if types_item_id[select] == 'DIR' or types_item_id[select] == 'LNK':
-                sftp.chdir(path='./' + items[int(select)])
-            elif types_item_id[select] == 'REG':
-                print('Downloading ' + items[int(select)])
-                sftp.get(remotepath='./' + items[int(select)], localpath = './' + items[int(select)], callback = progress)
+
+            try: items[int(select)]
+            except:
+                print('An invalid item was selected!')
+            else:
+                if types_item_id[select] == 'DIR' or types_item_id[select] == 'LNK':
+                    sftp.chdir(path='./' + items[int(select)])
+                elif types_item_id[select] == 'REG':
+                    print('Downloading ' + items[int(select)])
+                    try:
+                        sftp.get(remotepath='./' + items[int(select)], localpath = './' + items[int(select)], callback = progress)
+                    except KeyboardInterrupt:
+                        sftp.get_channel().shutdown(2)
+                    except:
+                        print('File could not be downloaded!')
