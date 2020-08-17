@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import paramiko
 import os, sys
